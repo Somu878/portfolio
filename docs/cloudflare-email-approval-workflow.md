@@ -13,7 +13,7 @@ This workflow uses Cloudflare Email Routing and an Email Worker to turn approval
    - sender is in `APPROVAL_ALLOWED_SENDERS`
    - the email contains an exact approval phrase
    - the optional `APPROVAL_REQUIRED_TOKEN` is present when configured
-6. If `APPROVAL_EMAIL_WORKER_MODE=deploy`, the Worker dispatches the GitHub approval workflow.
+6. If `APPROVAL_EMAIL_WORKER_MODE=deploy`, the Worker dispatches this repo action: `Somu878/portfolio/.github/workflows/approve-latest-codex.yml`.
 7. GitHub Actions finds the newest `codex/*` branch and merges it into `prod`.
 8. The GitHub Actions deploy workflow runs automatically on the `prod` push and deploys `dist/` to Cloudflare Pages production.
 
@@ -84,7 +84,15 @@ GITHUB_TOKEN=
 APPROVAL_REQUIRED_TOKEN=
 ```
 
-`GITHUB_TOKEN` should be a fine-grained token that can dispatch workflows in `Somu878/portfolio`.
+`GITHUB_TOKEN` is a Cloudflare Worker secret, not a GitHub Actions secret. It should be a fine-grained GitHub token that can dispatch workflows in `Somu878/portfolio`.
+
+Set it directly on the Cloudflare Email Worker:
+
+```bash
+npx wrangler@latest secret put GITHUB_TOKEN --config wrangler.email.toml
+```
+
+Paste the GitHub token when prompted.
 
 The current repo config uses `APPROVAL_EMAIL_WORKER_MODE=deploy`, but it only works after the Worker has a valid `GITHUB_TOKEN` secret and the GitHub workflows exist on `prod`.
 
@@ -95,12 +103,9 @@ The `Deploy Cloudflare Pages` workflow requires:
 ```text
 CLOUDFLARE_API_TOKEN
 CLOUDFLARE_ACCOUNT_ID
-APPROVAL_WORKER_GITHUB_TOKEN
 ```
 
-The Cloudflare token should have permission to deploy the `portfolio` Pages project.
-
-`APPROVAL_WORKER_GITHUB_TOKEN` is synced into the Cloudflare Email Worker as its `GITHUB_TOKEN` secret by `.github/workflows/deploy-approval-worker.yml`.
+The Cloudflare token should have permission to deploy the `portfolio` Pages project and deploy the `portfolio-approval-email` Worker.
 
 ## Git-Based Production Deploy
 
