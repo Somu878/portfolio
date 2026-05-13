@@ -13,7 +13,7 @@ This workflow uses Cloudflare Email Routing and an Email Worker to turn approval
    - sender is in `APPROVAL_ALLOWED_SENDERS`
    - the email contains an exact approval phrase
    - the optional `APPROVAL_REQUIRED_TOKEN` is present when configured
-6. If `APPROVAL_EMAIL_WORKER_MODE=deploy`, the Worker dispatches the GitHub approval workflow.
+6. If `APPROVAL_EMAIL_WORKER_MODE=deploy`, the Worker dispatches this repo action: `Somu878/portfolio/.github/workflows/approve-latest-codex.yml`.
 7. GitHub Actions finds the newest `codex/*` branch and merges it into `prod`.
 8. The GitHub Actions deploy workflow runs automatically on the `prod` push and deploys `dist/` to Cloudflare Pages production.
 
