@@ -172,7 +172,126 @@ function hasRequiredToken(text, env) {
   return text.includes(env.APPROVAL_REQUIRED_TOKEN);
 }
 
+function stripMetadataValue(value) {
+  return value
+    .trim()
+    .replace(/^`+|`+$/g, "")
+    .replace(/^<|>$/g, "")
+    .trim();
+}
+
+function findMetadataValue(text, labels) {
+  const lines = text.split(/\r?\n/);
+
+  for (const line of lines) {
+    for (const label of labels) {
+      const match = line.match(new RegExp(`^\\s*${label}\\s*:\\s*(.+)$`, "i"));
+
+      if (match) {
+        return stripMetadataValue(match[1]);
+      }
+    }
+  }
+
+  return "";
+}
+
+function isSafeGitRef(value) {
+  return (
+    /^[A-Za-z0-9._/-]+$/.test(value) &&
+    !value.includes("..") &&
+    !value.startsWith("/") &&
+    !value.endsWith("/")
+  );
+}
+
+function getDeploymentContext(text, env) {
+  const deployRef =
+    findMetadataValue(text, [
+      "Deploy branch",
+      "Change branch",
+      "Approval branch",
+      "Preview branch",
+      "Git ref"
+    ]) ||
+    env.GITHUB_DEPLOY_REF ||
+    "main";
+  const productionBranch =
+    findMetadataValue(text, ["Production branch", "Prod branch"]) ||
+    env.GITHUB_PRODUCTION_BRANCH ||
+    "prod";
+  const previewUrl = findMetadataValue(text, ["Preview URL", "Cloudflare preview URL"]);
+
+  if (!isSafeGitRef(deployRef)) {
+    throw new Error(`Unsafe deploy ref: ${deployRef}`);
+  }
+
+  if (!isSafeGitRef(productionBranch)) {
+    throw new Error(`Unsafe production branch: ${productionBranch}`);
+  }
+
+  if (deployRef === productionBranch) {
+    throw new Error("Change branch already matches production branch.");
+  }
+
+  return {
+    deployRef,
+    productionBranch,
+    previewUrl
+  };
+}
+
+async function triggerGitHubWorkflow(env, metadata) {
+  const repository = env.GITHUB_REPOSITORY || "Somu878/portfolio";
+  const workflowId = env.GITHUB_APPROVAL_WORKFLOW_ID || "approve-latest-codex.yml";
+  const workflowRef = env.GITHUB_WORKFLOW_REF || "prod";
+
+  if (!env.GITHUB_TOKEN) {
+    return {
+      ok: false,
+      status: 500,
+      body: "Missing GITHUB_TOKEN"
+    };
+  }
+
+  const response = await fetch(
+    `https://api.github.com/repos/${repository}/actions/workflows/${workflowId}/dispatches`,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${env.GITHUB_TOKEN}`,
+        "Content-Type": "application/json",
+        "User-Agent": "portfolio-approval-email-worker",
+        "X-GitHub-Api-Version": "2022-11-28"
+      },
+      body: JSON.stringify({
+        ref: workflowRef,
+        inputs: {
+          production_branch: metadata.productionBranch,
+          approved_by: metadata.from,
+          approved_at: metadata.approvedAt,
+          preview_url: metadata.previewUrl || "",
+          approval_subject: metadata.subject.slice(0, 120),
+          approval_message_id: metadata.messageId || ""
+        }
+      })
+    }
+  );
+  const body = await response.text();
+
+  return {
+    ok: response.status === 204,
+    status: response.status,
+    body
+  };
+}
+
 async function triggerDeployment(env, metadata) {
+  if ((env.APPROVAL_DEPLOY_TRIGGER || "github-workflow") === "github-workflow") {
+    return triggerGitHubWorkflow(env, metadata);
+  }
+
   if (!env.APPROVAL_DEPLOY_WEBHOOK_URL) {
     return {
       ok: false,
@@ -234,12 +353,24 @@ export default {
       return;
     }
 
+    let deploymentContext;
+
+    try {
+      deploymentContext = getDeploymentContext(searchableText, env);
+    } catch (error) {
+      message.setReject(error.message);
+      return;
+    }
+
     const metadata = {
       approvedAt: new Date().toISOString(),
       from: headerFrom || envelopeFrom,
       to: recipient,
       subject,
       matchedPhrase,
+      deployRef: deploymentContext.deployRef,
+      productionBranch: deploymentContext.productionBranch,
+      previewUrl: deploymentContext.previewUrl,
       messageId: message.headers.get("message-id") || "",
       inReplyTo: message.headers.get("in-reply-to") || "",
       references: message.headers.get("references") || ""

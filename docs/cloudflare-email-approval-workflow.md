@@ -13,7 +13,9 @@ This workflow uses Cloudflare Email Routing and an Email Worker to turn approval
    - sender is in `APPROVAL_ALLOWED_SENDERS`
    - the email contains an exact approval phrase
    - the optional `APPROVAL_REQUIRED_TOKEN` is present when configured
-6. If `APPROVAL_EMAIL_WORKER_MODE=deploy`, the Worker calls `APPROVAL_DEPLOY_WEBHOOK_URL`.
+6. If `APPROVAL_EMAIL_WORKER_MODE=deploy`, the Worker dispatches the GitHub approval workflow.
+7. GitHub Actions finds the newest `codex/*` branch and merges it into `prod`.
+8. The GitHub Actions deploy workflow runs automatically on the `prod` push and deploys `dist/` to Cloudflare Pages production.
 
 ## Approval Phrases
 
@@ -66,21 +68,51 @@ Plain variables in `wrangler.email.toml`:
 ```text
 APPROVAL_TARGET_ADDRESS=approvals@somuso.fun
 APPROVAL_ALLOWED_SENDERS=somukandula99@gmail.com
-APPROVAL_EMAIL_WORKER_MODE=dry-run
+APPROVAL_EMAIL_WORKER_MODE=deploy
+APPROVAL_DEPLOY_TRIGGER=github-workflow
+GITHUB_REPOSITORY=Somu878/portfolio
+GITHUB_APPROVAL_WORKFLOW_ID=approve-latest-codex.yml
+GITHUB_WORKFLOW_REF=prod
+GITHUB_PRODUCTION_BRANCH=prod
 APPROVAL_PHRASES_JSON=["Approved. Deploy this preview to production.","Approved, push this update live."]
 ```
 
 Set these as secrets when ready:
 
 ```text
-APPROVAL_DEPLOY_WEBHOOK_URL=
+GITHUB_TOKEN=
 APPROVAL_REQUIRED_TOKEN=
 ```
 
-Keep `APPROVAL_EMAIL_WORKER_MODE=dry-run` until a test reply is accepted. Change it to `deploy` only after the deploy webhook is configured and tested.
+`GITHUB_TOKEN` should be a fine-grained token that can dispatch workflows in `Somu878/portfolio`.
 
-## Current Cloudflare Pages Constraint
+The current repo config uses `APPROVAL_EMAIL_WORKER_MODE=deploy`, but it only works after the Worker has a valid `GITHUB_TOKEN` secret and the GitHub workflows exist on `prod`.
 
-The `portfolio` Pages project is currently a direct-upload project, not a Git-connected project. A Cloudflare Pages deploy hook needs a build/deploy source to trigger. If no deploy hook is available, the Email Worker can validate approval replies but cannot upload local `dist/` assets by itself.
+## Required GitHub Actions Secrets
 
-For fully automatic production deployment from email approval, connect the Pages project to a Git repository or provide another production deployment webhook URL in `APPROVAL_DEPLOY_WEBHOOK_URL`.
+The `Deploy Cloudflare Pages` workflow requires:
+
+```text
+CLOUDFLARE_API_TOKEN
+CLOUDFLARE_ACCOUNT_ID
+APPROVAL_WORKER_GITHUB_TOKEN
+```
+
+The Cloudflare token should have permission to deploy the `portfolio` Pages project.
+
+`APPROVAL_WORKER_GITHUB_TOKEN` is synced into the Cloudflare Email Worker as its `GITHUB_TOKEN` secret by `.github/workflows/deploy-approval-worker.yml`.
+
+## Git-Based Production Deploy
+
+Approval emails include:
+
+```text
+Change branch: codex/some-refresh
+Production branch: prod
+```
+
+After approval, the Email Worker dispatches `.github/workflows/approve-latest-codex.yml`. That workflow finds the newest remote `codex/*` branch, merges it into `prod`, and pushes `prod`.
+
+The workflow in `.github/workflows/deploy-cloudflare-pages.yml` runs on pushes to `prod`, checks out the production branch, runs `npm run build`, and deploys the built `dist/` folder to Cloudflare Pages production.
+
+The workflow in `.github/workflows/deploy-approval-worker.yml` also runs on `prod` pushes that touch the Worker or Wrangler config, so Email Worker deployment is handled by GitHub Actions instead of local manual deploys.
