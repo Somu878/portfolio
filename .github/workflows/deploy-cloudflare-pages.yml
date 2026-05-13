@@ -23,6 +23,15 @@ jobs:
     name: Deploy production branch
     runs-on: ubuntu-latest
     steps:
+      - name: Enforce prod promotion source
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          message="${{ github.event.head_commit.message }}"
+          if ! printf '%s' "$message" | grep -q "Promote main to prod"; then
+            echo "prod deployments must come from the approved main-to-prod promotion PR." >&2
+            exit 1
+          fi
+
       - name: Log deployment context
         run: |
           echo "Event: ${{ github.event_name }}"

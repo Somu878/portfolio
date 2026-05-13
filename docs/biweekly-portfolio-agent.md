@@ -114,6 +114,6 @@ Production deployment still requires explicit approval. The Email Worker only tr
 - `GITHUB_TOKEN` is configured on the Worker and can dispatch the GitHub approval workflow
 - GitHub Actions has `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets
 
-After dispatch, GitHub Actions finds the newest `codex/*` branch, merges it into `prod`, and the `prod` push deploys Cloudflare Pages.
+After dispatch, GitHub Actions finds the newest `codex/*` branch, merges it into `main`, creates and auto-merges a PR from `main` to `prod`, and the `prod` push deploys Cloudflare Pages. `prod` must be promoted from `main` only.
 
 See `docs/cloudflare-email-approval-workflow.md` for setup details.
