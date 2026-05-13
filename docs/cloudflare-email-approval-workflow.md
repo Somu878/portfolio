@@ -104,9 +104,12 @@ The `Deploy Cloudflare Pages` workflow requires:
 ```text
 CLOUDFLARE_API_TOKEN
 CLOUDFLARE_ACCOUNT_ID
+WORKFLOW_TRIGGER_TOKEN
 ```
 
 The Cloudflare token should have permission to deploy the `portfolio` Pages project and deploy the `portfolio-approval-email` Worker.
+
+`WORKFLOW_TRIGGER_TOKEN` is a GitHub Actions repository secret used by `approve-latest-codex.yml` to push `main` and merge the `main -> prod` PR with a real token. This is required because pushes made with GitHub's default `GITHUB_TOKEN` may not trigger the separate `push` workflow that deploys Cloudflare Pages.
 
 ## Git-Based Production Deploy
 
