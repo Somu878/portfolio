@@ -14,8 +14,9 @@ This workflow uses Cloudflare Email Routing and an Email Worker to turn approval
    - the email contains an exact approval phrase
    - the optional `APPROVAL_REQUIRED_TOKEN` is present when configured
 6. If `APPROVAL_EMAIL_WORKER_MODE=deploy`, the Worker dispatches this repo action: `Somu878/portfolio/.github/workflows/approve-latest-codex.yml`.
-7. GitHub Actions finds the newest `codex/*` branch and merges it into `prod`.
-8. The GitHub Actions deploy workflow runs automatically on the `prod` push and deploys `dist/` to Cloudflare Pages production.
+7. GitHub Actions finds the newest `codex/*` branch and merges it into `main`.
+8. GitHub Actions creates a PR from `main` to `prod` and auto-merges it.
+9. The GitHub Actions deploy workflow runs automatically on the `prod` push and deploys `dist/` to Cloudflare Pages production.
 
 ## Approval Phrases
 
@@ -103,9 +104,12 @@ The `Deploy Cloudflare Pages` workflow requires:
 ```text
 CLOUDFLARE_API_TOKEN
 CLOUDFLARE_ACCOUNT_ID
+WORKFLOW_TRIGGER_TOKEN
 ```
 
 The Cloudflare token should have permission to deploy the `portfolio` Pages project and deploy the `portfolio-approval-email` Worker.
+
+`WORKFLOW_TRIGGER_TOKEN` is a GitHub Actions repository secret used by `approve-latest-codex.yml` to push `main` and merge the `main -> prod` PR with a real token. This is required because pushes made with GitHub's default `GITHUB_TOKEN` may not trigger the separate `push` workflow that deploys Cloudflare Pages.
 
 ## Git-Based Production Deploy
 
@@ -116,7 +120,9 @@ Change branch: codex/some-refresh
 Production branch: prod
 ```
 
-After approval, the Email Worker dispatches `.github/workflows/approve-latest-codex.yml`. That workflow finds the newest remote `codex/*` branch, merges it into `prod`, and pushes `prod`.
+After approval, the Email Worker dispatches `.github/workflows/approve-latest-codex.yml`. That workflow finds the newest remote `codex/*` branch, merges it into `main`, creates a PR from `main` to `prod`, and auto-merges that PR.
+
+Production rule: `prod` should only be promoted from `main`. No workflow should merge `codex/*` directly into `prod`.
 
 The workflow in `.github/workflows/deploy-cloudflare-pages.yml` runs on pushes to `prod`, checks out the production branch, runs `npm run build`, and deploys the built `dist/` folder to Cloudflare Pages production.
 
