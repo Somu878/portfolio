@@ -8,9 +8,10 @@ enabled = false
 [vars]
 APPROVAL_TARGET_ADDRESS = "approvals@somuso.fun"
 APPROVAL_ALLOWED_SENDERS = "somukandula99@gmail.com"
-APPROVAL_EMAIL_WORKER_MODE = "dry-run"
-APPROVAL_DEPLOY_TRIGGER = "github-merge"
+APPROVAL_EMAIL_WORKER_MODE = "deploy"
+APPROVAL_DEPLOY_TRIGGER = "github-workflow"
 GITHUB_REPOSITORY = "Somu878/portfolio"
-GITHUB_DEPLOY_REF = "main"
+GITHUB_APPROVAL_WORKFLOW_ID = "approve-latest-codex.yml"
+GITHUB_WORKFLOW_REF = "prod"
 GITHUB_PRODUCTION_BRANCH = "prod"
 APPROVAL_PHRASES_JSON = "[\"Approved. Deploy this preview to production.\",\"Approved, push this update live.\"]"

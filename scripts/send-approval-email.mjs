@@ -35,7 +35,7 @@ const unchangedContent = getArg(
   "Selected work remains focused on Neat, Hugging Face routing/abstention models, ixi-pet, and Solana/Web3 prototypes."
 );
 const checks = getArg("checks", "Build validation passed before sending this approval request.");
-const mode = getArg("mode", "dry-run");
+const mode = getArg("mode", "deploy");
 const from = `${routing.senderName} <${routing.senderEmail}>`;
 const approvalToken = process.env.APPROVAL_REQUIRED_TOKEN || "";
 const approvalTokenSection = approvalToken

@@ -104,14 +104,16 @@ Approved, push this update live.
 
 If `recipientEmail` is blank, include the email draft in the Codex summary and state that no email was sent.
 
-Production deployment still requires explicit approval. The Email Worker only triggers a production deploy when all checks pass:
+Production deployment still requires explicit approval. The Email Worker only triggers the GitHub approval workflow when all checks pass:
 
 - the reply is sent to `approvals@somuso.fun`
 - the reply comes from an allowed approver
 - the reply includes an exact approval phrase
 - `APPROVAL_REQUIRED_TOKEN` is present when configured
 - `APPROVAL_EMAIL_WORKER_MODE=deploy`
-- `GITHUB_TOKEN` is configured on the Worker and can merge the approved change branch into `prod`
+- `GITHUB_TOKEN` is configured on the Worker and can dispatch the GitHub approval workflow
 - GitHub Actions has `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets
+
+After dispatch, GitHub Actions finds the newest `codex/*` branch, merges it into `prod`, and the `prod` push deploys Cloudflare Pages.
 
 See `docs/cloudflare-email-approval-workflow.md` for setup details.

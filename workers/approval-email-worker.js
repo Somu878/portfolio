@@ -241,8 +241,10 @@ function getDeploymentContext(text, env) {
   };
 }
 
-async function triggerGitHubMerge(env, metadata) {
+async function triggerGitHubWorkflow(env, metadata) {
   const repository = env.GITHUB_REPOSITORY || "Somu878/portfolio";
+  const workflowId = env.GITHUB_APPROVAL_WORKFLOW_ID || "approve-latest-codex.yml";
+  const workflowRef = env.GITHUB_WORKFLOW_REF || "prod";
 
   if (!env.GITHUB_TOKEN) {
     return {
@@ -253,7 +255,7 @@ async function triggerGitHubMerge(env, metadata) {
   }
 
   const response = await fetch(
-    `https://api.github.com/repos/${repository}/merges`,
+    `https://api.github.com/repos/${repository}/actions/workflows/${workflowId}/dispatches`,
     {
       method: "POST",
       headers: {
@@ -264,32 +266,30 @@ async function triggerGitHubMerge(env, metadata) {
         "X-GitHub-Api-Version": "2022-11-28"
       },
       body: JSON.stringify({
-        base: metadata.productionBranch,
-        head: metadata.deployRef,
-        commit_message: [
-          `Approve portfolio refresh from ${metadata.deployRef}`,
-          "",
-          `Approved by: ${metadata.from}`,
-          `Approved at: ${metadata.approvedAt}`,
-          `Preview URL: ${metadata.previewUrl || "not provided"}`,
-          `Approval subject: ${metadata.subject}`,
-          `Approval message id: ${metadata.messageId || "not provided"}`
-        ].join("\n")
+        ref: workflowRef,
+        inputs: {
+          production_branch: metadata.productionBranch,
+          approved_by: metadata.from,
+          approved_at: metadata.approvedAt,
+          preview_url: metadata.previewUrl || "",
+          approval_subject: metadata.subject.slice(0, 120),
+          approval_message_id: metadata.messageId || ""
+        }
       })
     }
   );
   const body = await response.text();
 
   return {
-    ok: response.status === 201 || response.status === 204,
+    ok: response.status === 204,
     status: response.status,
     body
   };
 }
 
 async function triggerDeployment(env, metadata) {
-  if ((env.APPROVAL_DEPLOY_TRIGGER || "github-merge") === "github-merge") {
-    return triggerGitHubMerge(env, metadata);
+  if ((env.APPROVAL_DEPLOY_TRIGGER || "github-workflow") === "github-workflow") {
+    return triggerGitHubWorkflow(env, metadata);
   }
 
   if (!env.APPROVAL_DEPLOY_WEBHOOK_URL) {
