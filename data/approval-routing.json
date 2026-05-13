@@ -10,6 +10,10 @@
   "senderName": "Nibby the Codex agent",
   "replyToEmail": "approvals@somuso.fun",
   "emailWorker": "portfolio-approval-email",
+  "deployTrigger": "github-merge",
+  "productionBranch": "prod",
+  "githubRepository": "Somu878/portfolio",
+  "githubWorkflow": "deploy-cloudflare-pages.yml",
   "approvalPhrases": [
     "Approved. Deploy this preview to production.",
     "Approved, push this update live."
@@ -22,6 +26,8 @@
     "subject": "Review portfolio refresh preview",
     "bodySections": [
     "Cloudflare Pages preview URL",
+    "Change branch",
+    "Production branch",
       "Changed content",
       "Unchanged content",
       "Generated or preserved assets",
@@ -34,9 +40,9 @@
     "The scheduled agent must send or prepare an approval email after every preview deployment.",
     "If recipientEmail is blank, include the draft in the Codex summary and state that no email was sent.",
     "If a mail connector is available and recipientEmail is set, send the approval email only after confirming the connector is authorized.",
-    "The email must include the Cloudflare Pages preview URL and say production deployment requires explicit approval.",
+    "The email must include the Cloudflare Pages preview URL, change branch, production branch, and say production deployment requires explicit approval.",
     "Approval by reply requires Cloudflare Email Routing to send approvals@somuso.fun to the portfolio-approval-email Worker.",
     "The Email Worker must require an allowed sender, an exact approval phrase, and the optional approval token when configured.",
-    "Production deployment must remain disabled unless APPROVAL_EMAIL_WORKER_MODE is explicitly set to deploy and APPROVAL_DEPLOY_WEBHOOK_URL is configured."
+    "Production deployment must remain disabled unless APPROVAL_EMAIL_WORKER_MODE is explicitly set to deploy and the Worker has a GitHub token that can merge the approved change branch into the production branch."
   ]
 }

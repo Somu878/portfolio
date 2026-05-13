@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 
 function getArg(name, fallback = "") {
   const prefix = `--${name}=`;
@@ -16,6 +17,13 @@ if (!apiKey) {
 
 const isMock = process.argv.includes("--mock");
 const previewUrl = getArg("preview-url", "https://portfolio-2i2.pages.dev");
+const deployRef = getArg(
+  "deploy-ref",
+  execFileSync("git", ["branch", "--show-current"], {
+    encoding: "utf8"
+  }).trim() || "main"
+);
+const productionBranch = getArg("production-branch", routing.productionBranch || "prod");
 const changedContent = getArg(
   "changed",
   isMock
@@ -43,6 +51,12 @@ Approval request for the Cloudflare portfolio refresh.
 
 Preview URL:
 ${previewUrl}
+
+Change branch:
+${deployRef}
+
+Production branch:
+${productionBranch}
 
 Changed content:
 - ${changedContent}

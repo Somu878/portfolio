@@ -84,6 +84,8 @@ Current mode is `cloudflare-email-worker`, which means the scheduled agent shoul
 The approval email must include:
 
 - Cloudflare Pages preview URL
+- change branch
+- production branch
 - changed content
 - unchanged content
 - generated or preserved assets
@@ -109,6 +111,7 @@ Production deployment still requires explicit approval. The Email Worker only tr
 - the reply includes an exact approval phrase
 - `APPROVAL_REQUIRED_TOKEN` is present when configured
 - `APPROVAL_EMAIL_WORKER_MODE=deploy`
-- `APPROVAL_DEPLOY_WEBHOOK_URL` is configured on the Worker
+- `GITHUB_TOKEN` is configured on the Worker and can merge the approved change branch into `prod`
+- GitHub Actions has `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets
 
 See `docs/cloudflare-email-approval-workflow.md` for setup details.

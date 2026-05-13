@@ -13,7 +13,9 @@ This workflow uses Cloudflare Email Routing and an Email Worker to turn approval
    - sender is in `APPROVAL_ALLOWED_SENDERS`
    - the email contains an exact approval phrase
    - the optional `APPROVAL_REQUIRED_TOKEN` is present when configured
-6. If `APPROVAL_EMAIL_WORKER_MODE=deploy`, the Worker calls `APPROVAL_DEPLOY_WEBHOOK_URL`.
+6. If `APPROVAL_EMAIL_WORKER_MODE=deploy`, the Worker calls the GitHub merge API.
+7. GitHub merges the approved change branch into `prod`.
+8. The GitHub Actions deploy workflow runs automatically on the `prod` push and deploys `dist/` to Cloudflare Pages production.
 
 ## Approval Phrases
 
@@ -67,20 +69,42 @@ Plain variables in `wrangler.email.toml`:
 APPROVAL_TARGET_ADDRESS=approvals@somuso.fun
 APPROVAL_ALLOWED_SENDERS=somukandula99@gmail.com
 APPROVAL_EMAIL_WORKER_MODE=dry-run
+APPROVAL_DEPLOY_TRIGGER=github-merge
+GITHUB_REPOSITORY=Somu878/portfolio
+GITHUB_DEPLOY_REF=main
+GITHUB_PRODUCTION_BRANCH=prod
 APPROVAL_PHRASES_JSON=["Approved. Deploy this preview to production.","Approved, push this update live."]
 ```
 
 Set these as secrets when ready:
 
 ```text
-APPROVAL_DEPLOY_WEBHOOK_URL=
+GITHUB_TOKEN=
 APPROVAL_REQUIRED_TOKEN=
 ```
 
-Keep `APPROVAL_EMAIL_WORKER_MODE=dry-run` until a test reply is accepted. Change it to `deploy` only after the deploy webhook is configured and tested.
+`GITHUB_TOKEN` should be a fine-grained token that can merge branches in `Somu878/portfolio`. In practice, give it repository contents write access for this repo.
 
-## Current Cloudflare Pages Constraint
+Keep `APPROVAL_EMAIL_WORKER_MODE=dry-run` until a test reply is accepted. Change it to `deploy` only after the GitHub token and GitHub Actions secrets are configured and tested.
 
-The `portfolio` Pages project is currently a direct-upload project, not a Git-connected project. A Cloudflare Pages deploy hook needs a build/deploy source to trigger. If no deploy hook is available, the Email Worker can validate approval replies but cannot upload local `dist/` assets by itself.
+## Required GitHub Actions Secrets
 
-For fully automatic production deployment from email approval, connect the Pages project to a Git repository or provide another production deployment webhook URL in `APPROVAL_DEPLOY_WEBHOOK_URL`.
+The `Deploy Cloudflare Pages` workflow requires:
+
+```text
+CLOUDFLARE_API_TOKEN
+CLOUDFLARE_ACCOUNT_ID
+```
+
+The Cloudflare token should have permission to deploy the `portfolio` Pages project.
+
+## Git-Based Production Deploy
+
+Approval emails include:
+
+```text
+Change branch: codex/some-refresh
+Production branch: prod
+```
+
+After approval, the Email Worker merges the change branch into `prod` using GitHub's merge API. The workflow in `.github/workflows/deploy-cloudflare-pages.yml` runs on pushes to `prod`, checks out the production branch, runs `npm run build`, and deploys the built `dist/` folder to Cloudflare Pages production.
