@@ -1,0 +1,163 @@
+{
+  "hero": {
+    "eyebrow": "AI/Product Engineer",
+    "heading": ["Somu", "Kandula"],
+    "description": "AI/product engineer building browser utilities, routing models, Codex pet experiments, and Web3 prototypes. I build small shipped tools: a Chrome AI tab cleaner, Hugging Face prompt-routing and abstention models, Codex pet packages, and Solana/Web3 prototypes."
+  },
+  "selectedWork": {
+    "eyebrow": "Selected Work",
+    "heading": "Small tools, model experiments, and Web3 prototypes.",
+    "description": "Projects that show the main shape of my work: practical AI utilities, lightweight routing models, developer-facing packages, and blockchain prototypes.",
+    "allReposUrl": "https://github.com/Somu878?tab=repositories",
+    "projects": [
+      {
+        "name": "Neat",
+        "kind": "Chrome AI utility",
+        "description": "Chrome extension for cleaning tab clutter: duplicate removal, stale-tab cleanup, and optional local Chrome AI organization.",
+        "tags": ["JavaScript", "Manifest V3", "Chrome AI"],
+        "updated": "Chrome extension",
+        "link": "https://github.com/Somu878/neat",
+        "featured": true,
+        "accent": "cyan"
+      },
+      {
+        "name": "ixi-pet",
+        "kind": "Codex pet package",
+        "description": "Codex pet package with a WebP sprite atlas, animation states, preview assets, and README QA previews.",
+        "tags": ["Python", "WebP sprites", "Codex"],
+        "updated": "Package experiment",
+        "link": "https://github.com/Somu878/ixi-pet",
+        "featured": true,
+        "accent": "green"
+      },
+      {
+        "name": "prompt-router-distilbert",
+        "kind": "Routing model",
+        "description": "DistilBERT text-classification model trained for prompt routing, LLM routing, and cost-aware routing decisions.",
+        "tags": ["DistilBERT", "Text classification", "Hugging Face"],
+        "updated": "Model",
+        "link": "https://huggingface.co/somukandula/prompt-router-distilbert"
+      },
+      {
+        "name": "context-aware-abstention-qwen-0.5b-v2",
+        "kind": "Abstention fine-tune",
+        "description": "Qwen2.5 0.5B fine-tune for context-aware abstention behavior, trained with SFT/TRL and tracked with Trackio.",
+        "tags": ["Qwen2.5", "SFT", "TRL", "Trackio"],
+        "updated": "Model",
+        "link": "https://huggingface.co/somukandula/context-aware-abstention-qwen-0.5b-v2"
+      },
+      {
+        "name": "Solana/Web3 prototypes",
+        "kind": "TypeScript/Solidity prototypes",
+        "description": "TypeScript/Solidity experiments including solflip, anchor-calc, sol-narrative-detector, and eth-contracts.",
+        "tags": ["TypeScript", "Solidity", "Solana/Web3"],
+        "updated": "Prototype cluster",
+        "link": "https://github.com/Somu878?tab=repositories"
+      }
+    ]
+  },
+  "technicalFocus": {
+    "eyebrow": "Technical Focus",
+    "heading": "The areas I keep building around.",
+    "description": "My strongest current work sits at the intersection of browser automation, small ML models, developer tooling, and Web3 prototypes.",
+    "focusAreas": [
+      {
+        "code": "AI",
+        "title": "Routing and abstention models",
+        "body": "Small model experiments around prompt routing, LLM routing, cost-aware decisions, and context-aware abstention behavior.",
+        "source": "DistilBERT, Qwen2.5, TRL, Trackio"
+      },
+      {
+        "code": "BROWSER",
+        "title": "Browser AI utilities",
+        "body": "Tools that bring AI into everyday workflows, especially browser-based utilities like tab cleanup and local organization.",
+        "source": "Chrome Extensions, Manifest V3, Chrome AI"
+      },
+      {
+        "code": "CODEX",
+        "title": "Developer-facing packages",
+        "body": "Reusable artifacts, preview assets, QA-friendly READMEs, and small packages built to be tested and shared.",
+        "source": "Python, WebP sprites, package validation"
+      },
+      {
+        "code": "WEB3",
+        "title": "Web3 prototypes",
+        "body": "TypeScript and Solidity experiments around Solana/Web3 ideas, contract work, and narrative/prototype exploration.",
+        "source": "TypeScript, Solidity, Solana/Web3"
+      }
+    ],
+    "languageStats": [
+      { "name": "JavaScript", "count": 23, "color": "#f7c948" },
+      { "name": "TypeScript", "count": 15, "color": "#67e8f9" },
+      { "name": "Python", "count": 8, "color": "#a7f3d0" },
+      { "name": "CSS", "count": 6, "color": "#fb7185" },
+      { "name": "Solidity", "count": 1, "color": "#c4b5fd" },
+      { "name": "Shell", "count": 1, "color": "#fbbf24" },
+      { "name": "HTML", "count": 1, "color": "#fdba74" }
+    ],
+    "techTags": [
+      "JavaScript",
+      "TypeScript",
+      "Python",
+      "CSS",
+      "Solidity",
+      "Chrome Extensions",
+      "Manifest V3",
+      "Chrome AI",
+      "Transformers",
+      "DistilBERT",
+      "Qwen2.5",
+      "Llama",
+      "TRL",
+      "SFT",
+      "sklearn",
+      "Gradio",
+      "Docker",
+      "Trackio",
+      "Scrapy",
+      "WebP",
+      "Solana",
+      "Web3"
+    ]
+  },
+  "experiments": {
+    "eyebrow": "Experiments / Prototypes",
+    "heading": "Focused experiments that explore one technical idea at a time.",
+    "description": "These projects are prototypes or experimental artifacts unless explicitly described as shipped tools.",
+    "items": [
+      {
+        "label": "Voice-agent classifier",
+        "title": "ota-voice-filler-classifier",
+        "body": "Experimental classifier work around voice-agent filler policy and support-style intent behavior.",
+        "meta": ["sklearn", "joblib", "Classification", "Hugging Face"],
+        "link": "https://huggingface.co/somukandula/ota-voice-filler-classifier"
+      },
+      {
+        "label": "Routing dataset",
+        "title": "prompt-router-dataset",
+        "body": "Dataset for prompt-routing and LLM-router classification experiments.",
+        "meta": ["JSON", "Text classification", "Synthetic data", "Hugging Face"],
+        "link": "https://huggingface.co/datasets/somukandula/prompt-router-dataset"
+      },
+      {
+        "label": "Image and model spaces",
+        "title": "Hugging Face Spaces",
+        "body": "Small Gradio, static, and Docker spaces used for model demos and visual experiments.",
+        "meta": ["Gradio", "Docker", "Static spaces", "Hugging Face"],
+        "link": "https://huggingface.co/somukandula"
+      },
+      {
+        "label": "Crawler prototype",
+        "title": "spidyCrawler",
+        "body": "Python web-crawler prototype built with Scrapy.",
+        "meta": ["Python", "Scrapy", "Crawler"],
+        "link": "https://github.com/Somu878/spidyCrawler"
+      }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Contact / follow me",
+    "heading": "Follow the work.",
+    "description": "The best places to follow my work are GitHub and Hugging Face. I also post and follow AI/Web3 work on X."
+  }
+}

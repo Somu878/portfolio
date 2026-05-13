@@ -1,0 +1,12 @@
+name = "portfolio-approval-email"
+main = "workers/approval-email-worker.js"
+compatibility_date = "2026-05-13"
+
+[observability]
+enabled = false
+
+[vars]
+APPROVAL_TARGET_ADDRESS = "approvals@somuso.fun"
+APPROVAL_ALLOWED_SENDERS = "somukandula99@gmail.com"
+APPROVAL_EMAIL_WORKER_MODE = "dry-run"
+APPROVAL_PHRASES_JSON = "[\"Approved. Deploy this preview to production.\",\"Approved, push this update live.\"]"

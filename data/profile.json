@@ -1,0 +1,66 @@
+{
+  "name": "Somu Kandula",
+  "positioning": "AI/product engineer building browser utilities, routing models, Codex pet experiments, and Web3 prototypes.",
+  "shortBio": "I build small shipped tools: a Chrome AI tab cleaner, Hugging Face prompt-routing and abstention models, Codex pet packages, and Solana/Web3 prototypes.",
+  "handles": {
+    "github": "Somu878",
+    "x": "Somu9teen",
+    "huggingFace": "somukandula"
+  },
+  "contactLinks": {
+    "github": "https://github.com/Somu878",
+    "x": "https://x.com/Somu9teen",
+    "huggingFace": "https://huggingface.co/somukandula",
+    "site": "https://portfolio-2i2.pages.dev"
+  },
+  "interests": [
+    "browser AI utilities",
+    "prompt routing",
+    "context-aware abstention",
+    "Codex pet packages",
+    "Solana/Web3 prototypes",
+    "small developer-facing tools"
+  ],
+  "currentFocus": [
+    "Chrome AI utility workflows",
+    "Hugging Face routing and abstention models",
+    "Codex pet packaging and animation assets",
+    "TypeScript/Solidity Web3 prototypes"
+  ],
+  "preferredTone": [
+    "technical",
+    "credible",
+    "concise",
+    "personality-first without hype"
+  ],
+  "refreshBoundaries": {
+    "doNotClaim": [
+      "unverified jobs or company work",
+      "production usage",
+      "user counts",
+      "business impact",
+      "metrics",
+      "awards",
+      "skills not visible in public work or this profile file",
+      "personal traits unless labeled as a light interpretation"
+    ],
+    "sourceRules": [
+      "Use this file as the durable source of identity, interests, tone, boundaries, and contact links.",
+      "Use public GitHub repositories, languages, descriptions, and non-profile README themes for project context.",
+      "Do not read or use the GitHub profile landing README repository as a source.",
+      "Use public X profile/posts only when accessible without credentials.",
+      "If X access is blocked or rate-limited, preserve existing X-related content and report the block clearly.",
+      "Use Hugging Face model, dataset, and Space metadata only for concrete technical facts."
+    ],
+    "visualRules": [
+      "Keep curated visuals by default.",
+      "Regenerate or replace images only when there is a clear content or style reason.",
+      "When visuals change, explain what changed and why in the refresh summary."
+    ],
+    "deploymentRules": [
+      "Scheduled refreshes must create a Cloudflare Pages preview deployment only.",
+      "Never deploy to production from the scheduled refresh.",
+      "Production deployment requires explicit review and approval."
+    ]
+  }
+}
