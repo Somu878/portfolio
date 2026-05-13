@@ -1,0 +1,56 @@
+name: Deploy Approval Email Worker
+
+on:
+  push:
+    branches:
+      - prod
+    paths:
+      - workers/approval-email-worker.js
+      - wrangler.email.toml
+      - package.json
+      - package-lock.json
+      - .github/workflows/deploy-approval-worker.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: approval-email-worker-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-worker:
+    name: Deploy approval worker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout production ref
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync Worker GitHub token secret
+        run: |
+          if [ -z "$APPROVAL_WORKER_GITHUB_TOKEN" ]; then
+            echo "APPROVAL_WORKER_GITHUB_TOKEN is not set; skipping Worker GITHUB_TOKEN sync."
+            exit 0
+          fi
+
+          printf '%s' "$APPROVAL_WORKER_GITHUB_TOKEN" | npx wrangler@latest secret put GITHUB_TOKEN --config wrangler.email.toml
+        env:
+          APPROVAL_WORKER_GITHUB_TOKEN: ${{ secrets.APPROVAL_WORKER_GITHUB_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Deploy Cloudflare Email Worker
+        run: npm run deploy:approval-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

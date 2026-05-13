@@ -1,0 +1,86 @@
+name: Approve Latest Codex Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      production_branch:
+        description: Branch that receives approved portfolio changes
+        required: false
+        default: prod
+      approved_by:
+        description: Email address that approved the deployment
+        required: false
+        default: ""
+      approved_at:
+        description: Approval timestamp from the Email Worker
+        required: false
+        default: ""
+      preview_url:
+        description: Preview URL approved by email
+        required: false
+        default: ""
+      approval_subject:
+        description: Approval email subject
+        required: false
+        default: ""
+      approval_message_id:
+        description: Approval email Message-ID
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: approve-latest-codex
+  cancel-in-progress: false
+
+jobs:
+  merge-latest-codex:
+    name: Merge newest codex branch into production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git author
+        run: |
+          git config user.name "Nibby the Codex agent"
+          git config user.email "actions@github.com"
+
+      - name: Find latest codex branch
+        id: latest
+        run: |
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*'
+          latest_ref="$(git for-each-ref \
+            --count=1 \
+            --sort=-committerdate \
+            --format='%(refname:short)' \
+            'refs/remotes/origin/codex')"
+
+          if [ -z "$latest_ref" ]; then
+            echo "No codex/* branches found." >&2
+            exit 1
+          fi
+
+          latest_branch="${latest_ref#origin/}"
+          echo "branch=$latest_branch" >> "$GITHUB_OUTPUT"
+          echo "Latest codex branch: $latest_branch"
+
+      - name: Merge latest codex branch into production branch
+        run: |
+          production_branch="${{ inputs.production_branch }}"
+          latest_branch="${{ steps.latest.outputs.branch }}"
+
+          git checkout -B "$production_branch" "origin/$production_branch"
+          git merge --no-ff "origin/$latest_branch" \
+            -m "Approve portfolio refresh from $latest_branch" \
+            -m "Approved by: ${{ inputs.approved_by }}" \
+            -m "Approved at: ${{ inputs.approved_at }}" \
+            -m "Preview URL: ${{ inputs.preview_url }}" \
+            -m "Approval subject: ${{ inputs.approval_subject }}" \
+            -m "Approval message id: ${{ inputs.approval_message_id }}"
+          git push origin "$production_branch"
+
