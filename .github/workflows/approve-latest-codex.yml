@@ -3,6 +3,10 @@ name: Approve Latest Codex Branch
 on:
   workflow_dispatch:
     inputs:
+      integration_branch:
+        description: Branch that receives approved codex changes before production
+        required: false
+        default: main
       production_branch:
         description: Branch that receives approved portfolio changes
         required: false
@@ -30,6 +34,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: approve-latest-codex
@@ -37,7 +42,7 @@ concurrency:
 
 jobs:
   merge-latest-codex:
-    name: Merge newest codex branch into production
+    name: Promote newest codex branch through main to production
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -69,12 +74,18 @@ jobs:
           echo "branch=$latest_branch" >> "$GITHUB_OUTPUT"
           echo "Latest codex branch: $latest_branch"
 
-      - name: Merge latest codex branch into production branch
+      - name: Merge latest codex branch into main
         run: |
+          integration_branch="${{ inputs.integration_branch }}"
           production_branch="${{ inputs.production_branch }}"
+          if [ "$integration_branch" = "$production_branch" ]; then
+            echo "Integration branch and production branch must be different." >&2
+            exit 1
+          fi
+
           latest_branch="${{ steps.latest.outputs.branch }}"
 
-          git checkout -B "$production_branch" "origin/$production_branch"
+          git checkout -B "$integration_branch" "origin/$integration_branch"
           git merge --no-ff "origin/$latest_branch" \
             -m "Approve portfolio refresh from $latest_branch" \
             -m "Approved by: ${{ inputs.approved_by }}" \
@@ -82,5 +93,46 @@ jobs:
             -m "Preview URL: ${{ inputs.preview_url }}" \
             -m "Approval subject: ${{ inputs.approval_subject }}" \
             -m "Approval message id: ${{ inputs.approval_message_id }}"
-          git push origin "$production_branch"
+          git push origin "$integration_branch"
 
+      - name: Create and auto-merge main to prod PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          integration_branch="${{ inputs.integration_branch }}"
+          production_branch="${{ inputs.production_branch }}"
+          latest_branch="${{ steps.latest.outputs.branch }}"
+
+          existing_pr="$(gh pr list \
+            --base "$production_branch" \
+            --head "$integration_branch" \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')"
+
+          if [ -n "$existing_pr" ]; then
+            pr_number="$existing_pr"
+            echo "Using existing PR #$pr_number"
+          else
+            pr_url="$(gh pr create \
+              --base "$production_branch" \
+              --head "$integration_branch" \
+              --title "Promote approved portfolio changes to production" \
+              --body "Approved branch: $latest_branch
+
+          Approved by: ${{ inputs.approved_by }}
+          Approved at: ${{ inputs.approved_at }}
+          Preview URL: ${{ inputs.preview_url }}
+          Approval subject: ${{ inputs.approval_subject }}
+          Approval message id: ${{ inputs.approval_message_id }}
+
+          Production rule: prod is promoted from main only.")"
+            pr_number="${pr_url##*/}"
+            echo "Created PR #$pr_number"
+          fi
+
+          gh pr merge "$pr_number" \
+            --merge \
+            --delete-branch=false \
+            --subject "Promote main to prod" \
+            --body "Production rule: prod is promoted from main only. Approved codex branch: $latest_branch."
