@@ -5,14 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "python3 -m http.server 5173 --bind 127.0.0.1",
-    "dev:cloudflare": "npm run build && npx wrangler@latest pages dev dist --compatibility-date=2026-05-13",
+    "wrangler": "node scripts/wrangler.mjs",
+    "dev:cloudflare": "npm run build && npm run wrangler -- pages dev dist --compatibility-date=2026-05-13",
     "lint": "node --check main.js && node --check workers/approval-email-worker.js && node scripts/validate-site.mjs",
     "build:static": "node scripts/build-static.mjs",
     "build": "npm run lint && npm run build:static",
-    "preview:cloudflare": "npm run build && npx wrangler@latest pages deploy dist --project-name portfolio --branch portfolio-refresh-preview",
-    "deploy:production": "npm run build && npx wrangler@latest pages deploy dist --project-name portfolio --branch prod",
-    "deploy:approval-worker": "npx wrangler@latest deploy --config wrangler.email.toml",
+    "preview:cloudflare": "npm run build && npm run wrangler -- pages deploy dist --project-name portfolio --branch portfolio-refresh-preview",
+    "deploy:production": "npm run build && npm run wrangler -- pages deploy dist --project-name portfolio --branch prod",
+    "deploy:approval-worker": "npm run wrangler -- deploy --config wrangler.email.toml",
     "send:approval-email": "node scripts/send-approval-email.mjs",
-    "tail:approval-worker": "npx wrangler@latest tail portfolio-approval-email"
+    "tail:approval-worker": "npm run wrangler -- tail portfolio-approval-email"
   }
 }

@@ -55,7 +55,7 @@ jobs:
         run: npm run build
 
       - name: Deploy to Cloudflare Pages production
-        run: npx wrangler@latest pages deploy dist --project-name portfolio --branch prod
+        run: npm run wrangler -- pages deploy dist --project-name portfolio --branch prod
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

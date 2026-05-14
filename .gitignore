@@ -5,3 +5,6 @@ dist
 .env.*
 .dev.vars
 .wrangler
+memory.md
+approval-email-draft.md
+docs/approval-email-draft.md
